@@ -31,7 +31,7 @@ train = list(read_dataset("data/ptb/train_small.txt"))
 w2i = defaultdict(lambda: UNK, w2i)
 dev = list(read_dataset("data/ptb/valid.txt"))
 i2w = {v: k for k, v in w2i.items()}
-nwords = max(w2i.values()) + 1 
+nwords = max(w2i.values()) + 1
 
 # Start DyNet and define trainer
 model = dy.Model()
@@ -39,24 +39,18 @@ trainer = dy.SimpleSGDTrainer(model, learning_rate=0.1)
 
 
 ### Approach 2: RNN as LM
-
 # Define the model (the rnn, input and internal parameters)  - YOUR CODE HERE
-
-
-
 ## end your code here
 
-def calc_score_of_history_rnn(s, word):
 
+def calc_score_of_history_rnn(s, word):
     emb = W_emb[word]
     s = s.add_input(emb)
-
     # Calculate the score and return
     h = s.output()
     ## your code here
 
-
-    return 0 
+    return 0
 
 
 # Calculate the loss value for the entire sentence

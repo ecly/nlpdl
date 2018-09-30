@@ -35,7 +35,7 @@ train = list(read_dataset("data/ptb/train_small.txt"))
 w2i = defaultdict(lambda: UNK, w2i)
 dev = list(read_dataset("data/ptb/valid.txt"))
 i2w = {v: k for k, v in w2i.items()}
-nwords = max(w2i.values()) + 1 
+nwords = max(w2i.values()) + 1
 
 # Start DyNet and define trainer
 model = dy.Model()
@@ -43,8 +43,12 @@ trainer = dy.SimpleSGDTrainer(model, learning_rate=0.1)
 
 
 ### Approach 1: LM as FFNN
-
 # Define the model parameters - YOUR CODE HERE
+ntags = len(w2i)
+W1 = model.add_parameters((HID_SIZE, EMB_SIZE))
+b1 = model.add_parameters(HID_SIZE)
+W_sm = model.add_parameters((ntags, HID_SIZE))          # Softmax weights
+b_sm = model.add_parameters((ntags))                      # Softmax bias
 
 ## end your code here
 
@@ -57,8 +61,11 @@ def calc_score_of_history_ffnn(words):
     # hint: you can use affine_transform to calculate Wx+b
 
     # Calculate the score and return
-
-    return 0 
+    dy.renew_cg()
+    n_hot = dy.inputVector(words)
+    h = dy.tanh(dy.parameter(W1) * n_hot + dy.parameter(b1))
+    score = dy.parameter(W_sm) * h + dy.parameter(b_sm)
+    return score
 ## end your code here
 
 # Calculate the loss value for the entire sentence
@@ -71,7 +78,7 @@ def calc_sent_loss(sent):
     all_losses = []
     for next_word in sent + [S]:
         s = calc_score_of_history_ffnn(hist)
-        all_losses.append(dy.pickneglogsoftmax(s, next_word))
+        all_losses.append(dy.pickneglogsoftmax(dy.parameter(s), next_word))
         hist = hist[1:] + [next_word] # adds predicted word to history
     return dy.esum(all_losses)
 

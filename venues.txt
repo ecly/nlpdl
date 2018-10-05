@@ -1,0 +1,19 @@
+# ACL Anthology
+- CL avoid (huge papers)
+- TACL (safe in terms of quality, feasibility depends)
+- ACL+EACL+NAACL main conference, great place to look
+- EMNLP also great
+- CoNLL small but fine workshop
+- *Sem/SemEval, probably avoid, very mathy
+
+Avoid everything else.
+
+# NIPS -> NeurIPS
+Very theoretical
+
+# ICML
+
+# ICLR
+
+# AISTATS
+Not primarily deep learning

@@ -1,0 +1,149 @@
+# Learning to Negate Adjectives with Bilinear Models
+
+Goal: To negate adjectives by predicting antonym in an arbitrary word embedding model.
+
+Existing work has been done to push antonyms further apart in the the space of word embeddings.
+
+In this work, we use arbitrary word embedding models, with no assumptions about
+pre-training for lexical contrast.
+
+Address task of negation. Given one adjective, predict one-best antonym.
+
+
+## Approach
+- Intuition
+    Exploit a word's semantic neighborhood to help find its antonyms.
+    Antonym pairs share a domain or topic, but differ in their value or polarity.
+    Negation must alter the polarity while retaining the domain in formation in the word embedding.
+
+    Kruszewski et al. (2016) find that nearest neighbors in vector space are a good approximation for
+    human judgements about negation.
+    Represent an adjective's domain by the centroid of nearest neighbors in the embedding space, or cohyponyms in WordNet.
+
+- Bilinear relational neural network architecture
+    Proven succesful for identifying image transformations in computer vision (Memisevic, 2012)
+
+## WordNet
+Large lexical database of English nouns, verbs adjectives and adverbs.
+Grouped into sets of cognitive synonyms (synsets) each expressing a distinct concept.
+Results in a network of meaningfully related words and concepts, available for download.
+
+Superficially resembles a thesaurus. In reality, it labels semantic relation among words rather than
+specific word similary.
+
+## Task
+Map word embedding vector x, eg. hot, to antonym vector y in the same space, eg. cold,
+conditioned on the semantic domain which is represented by vector z. (Explained in 3.2)
+
+- Relation autoencoders (RAE) also known as gated autoencoders (GAE)
+    Have been used to learn representations of transformations between images (Roation, translation etc.)
+
+    A type of gated network
+    Contains multiplicative connections between two related inputs.
+    Difference between LSTM gates in their nonlinearity (element-wise for LSTM, outer (billinear) product for RAE)
+    LSTM memory gates are an internal hidden state of the network, in RAE gates are part of the network input.
+
+- Autoencoder
+    An Autoencoder (AE) can be defined as:
+    h = f(x) = σ(Wex)
+    y = g(h) = W_dh
+
+    where W_e are encoder weight and W_d are the decoder weights.
+    Typically weights are tied such that W_d = tranposed(W_e)
+
+- RAE (again)
+    RAE's have two inputs x and z.
+    Instead of weight matrix W, we have weigh tensor W hat  W ∈ R^(nH×nX×nZ).
+ned in Eq 2.
+
+- Continuous Class-Conditional Relation Encoders
+    Their bilinear model is a continuous class-conditional relational encoder (CCRE).
+    Same model architecture as RAE with untied encoder and decoder weights.
+
+    Not an autoencoder, but simply an encoder.
+    Trained to transform input to antonym rather than reproduce (like autoencoders).
+
+    Class-conditional (in the sense of Rudy and Taylor 2015):
+    Since the gates represent the class. Instead of one-hot class representations like R&T2015,
+    uses real-valued gates representing the semantic domain of the input vector.
+
+    Semantic domain is approximated as the centroid of a set of related vectors (Sec 3.2)
+    + Inspried by Kruszewski et al. (2016) who investigate negation of nouns, which
+      typically involve a set of alternatives rather than an antonym.
+
+    Hypothesis:
+    A set of alternatives can stand in for the semantic domain. Each word has its own domain based on
+    WordNet or distributional neighbours, however, similary words will generally have similar gates.
+
+
+## Experiments
+    Use 300-dimensional embeddings trained parts of Google News dataset.
+    Antonym training data from WordNet (approximately 20k training pairs)
+    Training skips all pairs where the input word in training set, is input word in test set.
+
+    GateVectors used are the centroid of the list of cohyponyms from the input word (from WN)
+        If less than 10 cohyponyms are available, nearest neighbours from the vector space are used.
+        Input vector is never part of the centroid.
+
+    'Unsupervised' version uses only 10 nearest neighbors as gate condition.
+
+    Hyperparams were tuned on GRE development set.
+    Trained to minimize Mean Squared Error loss.
+
+- Testing
+    Experiment 1:
+        Uses Graduate Record Examination questions from Mohammad et al. (2013).
+        Given an input word, pick best antonym from five options.
+
+        Answer it using smallest cosine distance between options.
+        Example:
+        piquant: (a) shocking, (b) jovial, (c) rigorous, (d) merry, (e) bland
+            e is correct
+
+        Accuracy is percentage of questions answered correctly.
+
+    Experiment 2:
+        Evaluate precision of models.
+        Naturally criterion for succes of negation mapping is whether model returns good rank 1 antonym,
+        or several good antonyms at rank 5.
+
+        Retrieve the 5 best antonyms and compare against a gold standard dataset.
+        GRE test set (GRE - 99 adjectives and their antonyms) and WN.
+        To minimize false negatives, improve coverage of the gold standard by expanding it with antonyms from
+        Roget's 21st Centurary Theusaurus, Third Edition.
+
+
+## Results
+    Experiment 1:
+        Random baseline results in 0.2 accuracy (5 options)
+        Cosine baseline results in 0.5 accuracy (suggesting 2/5 options are related to input word)
+        Linear concat model (where z is appended) achieves 0.66
+        CCCRE achieves highest accuracy across all condition. Only model to beat linear concat,
+        suggesting that bilinear connections are useful for antonym prediction.
+
+        All models show loss of accuracy in unsupervised condition, suggesting that alternatives found in
+        the vector neighbourhood are less useful than supervised gates.
+
+        Even unsupervised, CCRE does however achieve 0.6 accuracy.
+
+        GRE test fails to accurately reflect the goal, since many cases have several gold standard antonyms.
+        Example for 'doleful' GRE expects 'merry', where the model prefers 'sociable' with alternatives
+            'joyful', joyous' and 'happy'.
+
+    Experiment 2:
+        On GRE dataset under standard conditions:
+            CCCRE P@1 accuracy of 0.66 (impressive)
+            Unsupervised and restricted (remove cohyponyms from test set from training set) 0.5
+
+        LB dataset more challenging as it contains words with no obvious antonym eg. taxonomic, quarterly.
+        CCCRE still achieves highest precision.
+
+## Related Work
+
+## Conclusion
+    Shown that a representation of semantic domain improves antonym prediction.
+    Multiplicate connections in a bilinear model is effective at learning to negate adjectives with high precision.
+    Future improvement:
+        Make model more efficient to train by reducing number of parameters to be learning.
+        Address negation of nouns and verbs.
+

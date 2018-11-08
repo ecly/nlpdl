@@ -1,0 +1,69 @@
+# There is no logical negation here, but there are alternatives: Modeling conversational negation with distributional semantics.
+
+Negation for cases with no clear negation:
+    eg. "This is not a dog", suggests certain plausible alternatives like middle-sized mammals etc.
+    Unlikely to be a bird or scyscraper etc.
+
+    ## Distributional semantic methods.
+    Derives vector-based representation of words by generalizing over the context that a word appears in.
+
+    There is no evidence that distributional semantics can capture the relation between 'dog' and 'no dog'
+    as 2 complementary sets in some vector space.
+
+    Consider which sentence is more likely to occur in natural conversational context:
+
+    a. This is not a dog... it is a wolf.
+    b. This is not a dog... it is a scredriver.
+
+    If the negation of a predicate is just the complement of the corresponding set, then
+    (a) and (b) should be equally plausible.
+
+    Beyond the logical aspects of negation, it seems there is a an 'alternativehood' seems well suited for DS.
+
+
+    ## Conversational negation
+    DS traditionally focused on lexical aspects, meaning negation generally handled as opposites (hot, cold)
+    Consensus is that contrasting words tend to occur in similar contexts
+
+    In conversational negation for linguistic usage, the negation of a predicate often suggests
+    that one of the set of alternatives might be holding.
+
+    ## Data Set of Alternative Plausibility Ratings
+    Using WordNet create list of 534 negated-item/hyponym pairs: deer/pollard, bab/bread-bin etc.
+    Create a bunch of other cases from other datasets (section 4.2)
+
+    For all pairs, generate: "There is not an X, is it a Y" and "There is no X here, but there is a Y",
+    manually correcting mistakes eg. detimners (a broccoli > broccoli).
+
+    Crowdsource plausibility ratings using Crowdflower.
+
+    ## Crowdsource results
+    Pairs with largest positive THERE-IT mean rating
+    castle - prince
+    bottle - cap
+    dress - tie
+
+    Results from here shouw that close cohyponyms serve as good alternatives eg. lizard/iguana
+
+
+    # Predicting alternative plausibility with DS
+    Cosine angle between distributional vectors of a negated noun and the
+    potential alternativeis estimate of their degree of semantic similarity.
+
+    ## Model
+    Extract co-occurence information from a courpus of about 2.8 billion words. (ukWaC, Wikipedia and British National Corpus)
+    Produce 300 dimensional vectors from this. (embeddings)
+
+
+    ## Training
+    8437 training examples for this/it is X, 3071 for this/it is not X, 7350 for there is X, and 3220 for there is no X based on the corpus.
+
+    Considered neural-network techniques across wide range of hyperparameters but found on dev. set that
+    support vector regression (Drucker et al. 1996) with RBF worked best.
+
+    Had to decide how to feed vector representing negated item and its candidate alternative to supervised
+    regression algorithm. Explored both concatenating and substracting the input vectors, but picked the latter.
+
+
+    # Discussion
+    Cosine similarity in DS vector space is good indicator of alternativehood.

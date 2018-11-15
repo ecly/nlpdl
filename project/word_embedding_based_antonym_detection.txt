@@ -1,0 +1,83 @@
+Word Embedding-based Antonym Detection using Thesauri and Distributional Information
+Masataka Ono, Makoto Miwa, Yutaka Sasaki
+
+Novel approach to train word embeddings to capture antonyms
+Use supervised synonym and antonym information from thesauri
+Answer antonym questions with F-score of 89%
+
+# Introduction
+Word embedding models based on distributional semantic can't distinguish between synonyms and antonyms.
+
+Two models:
+    - Word Embedding on Thesauri Information (WE-T)
+        + Supervised synonym/antonym information from thesauri.
+    - Word Embeddings on Thesauri and Distributional information (WE-TD)
+        + Corpus-based contextual information (distributional information)
+        + In combination with WE-T.
+        + Enables calculation of similarities among in-vocab and out-of-vocab words.
+
+
+# Word Embeddings form antonyms
+V = vocabulary
+S_w = set of synonyms for word w
+A_w = set of antonyms for wod w
+
+Train for sim(w,s) to be as high as possible
+And for sim(w,a) to be as low as possible (negative)
+
+AdaGrad to maximimize objective function
+
+## Incorporate corpus based distributional information
+Skip-Gram with Negative Sampling (SGNS)
+
+Co-occurence pairs to determine similar words.
+Incorporate this objective function into previous model.
+
+# Experiments
+GRE antonym questions.
+Target word, five candidate words.
+Development and test set (950/162)
+
+Calculate similarity between target word and candidate words
+- Averaging assymetric similarity scores using sim function in Eq. 2
+- Choose word with lowest similarity
+- If model did not contain any words in a question, question left unanswered.
+
+## Resource for training
+Supervised data (synonym/antonym data):
+    - WordNet (Miller 1995)
+    - Roget (Kipfer, 2009)
+
+    Provided by Zhang et al. (2014)
+
+52,760 words
+AVG. 11.7 synonyms
+
+21,319 entries
+each of which had AVG 6.5 antonyms
+
+# Results
+WE-TD wins at almost everything, however WE-T does good on Precision but lacks Recall.
+
+## Parameter settings
+Dimension of embedding = 300
+AdaGrad iterations = 20
+AdaGrad learning rate = 0.03
+Add 100,000 most frequent words from Wikipedia to vocabulary
+negative sampling k = 5
+context window size C = 5
+threshold for subsampling 10^-8
+
+# Evaluation
+F-score (harmonic mean of precision and recall)
+
+Low score of WE-D shows problem with distributional hypothesis.
+WE-T shows that inference of relations for other word pairs more effective than rule-based
+WE-TD highest score and performs similar on both test and dev set
+
+## Error analysis
+Half of errors were "forgivable"
+
+# Conclusion
+Future work will obtain word embeddings for other semantic relationsk
+WE-TD 89% F-score

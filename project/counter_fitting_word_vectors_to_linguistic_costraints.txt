@@ -1,0 +1,61 @@
+Counter-fitting Word Vectors to Linguistic Constraints (2016)
+
+Nikola Mrkˇsi´ Diarmuid ´O S´eaghdha2, Blaise Thomson, Milica Gaˇ si´c
+Lina Rojas-Barahona1, Pei-Hao Su1, David Vandyke1, Tsung-Hsien Wen1, Steve Young1
+
+
+Inject antonymy and synonymy into vector space representations.
+Applying this to public pre-trained word vectors leads to new SOTA performance on SimLex-999
+
+# Introduction
+- Popular methods rely on the distributional hypothesis assumption
+- Distributional hypothesis tends to coalesce semantically similar words with
+  conceptual association.
+- Popular methods tends to push antonyms and synonyms together
+- Similarity/Antonymy can be application- or domain-specific
+    + We want to explot distributional knowledge for dialogue state tracking (DST)
+
+# DST
+- In a dialogue system interprets users' utterances and updates belief state
+    + Belief state is probability distribtion over all possible states of the dialogue
+    + Eg. at restaurant DST would need to detect whether user wants cheap or expensive food
+    + Distinguishing between semantically different yet conceptually related words is critical
+        % Eg. (Cheaper and pricey)
+- Propose method adressing these two using synonymy and antonymy relations from lexical resources
+- Method: counter-fitting
+    + Light weight post-processing procedure in the spirit of retrofitting
+    + Applying counter-fitting to Paragram-SL999 we achieve new SOTA on SimLex-999
+
+# Counter-fitting Word Vectors to Linguistic Constraints
+- Initial vocabulary: V = {v_1, v_2,...,v_N}
+- Updated vocabulary: V' = {v'_1, v'_2,...,v'_N}
+- Constraints A and S, each of which are pairs (i,j)
+    + S being indices of synonyms in V
+    + A being indices of antonyms in V
+
+- Objective functions to counter-fit pre-trained word vectors V:
+    + Antonym Repel (AR)
+    + Synonym Attract (SA)
+    + Vector Space Preservation (VSP)
+
+    Objective function for training procedure is weighted sum of three functions
+    each with their own weight (hyperparams) k1, k2, k3
+
+## DST
+- Capture users goals given their utterances
+- Goals represented as sets of contraints, by slot-value pairs
+    + [food: Indian], [parking: allowed]
+
+## Experiments
+- Datasets
+    + Vectors
+        % Glove (300dim vectors)
+        % Paragram-SL999 (300dim vector)
+    + Synonymy/Antonymy constraints
+        % PPDB 2.0
+        % WordNet
+
+        12802 antonymy pairs, 31,828 synonymy pairs for words in vocabulary.
+        Vocabulary consists of 76,427 most frequent words in Open-Subtitles.
+
+

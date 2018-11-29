@@ -1,0 +1,41 @@
+Generative Class-Conditional Denoising Autocencoders 2015
+Jan Rudy & Graham Taylor
+
+Sampling procedure for denoising autoencoders involving learning transition operator of a Markov chain.
+For efficient sampling from conditional distributions, extend work to gated autoencoders.
+Proposed model generates convincing class-conditional samples when trained on both MNIST and TFD datasets.
+
+
+# Introduction
+- Recent sampling procedure for denoising autoencoders presents novel training procedure.
+- Train to learn transition operator of Markov chain instead of mazimizing likelook of data under model.
+
+# Autoencoders
+- FF neural net aiming to minimize reconstruction error of an input data vector via a latent representation
+- Composition of two learned functions, f encoder, g decoder
+- f maps from input space to representation space
+- g maps from representation space to input space
+- both functions learn a matrix, have a bias and non-linear activation function
+- updated via gradient-based optimization to minimize a loss function
+
+## Denoising autoencoders
+- if nH >= nX autoencoder can achieve perfect reconstruction (id fun)
+- instead of reconstructing from input, reconstruct from corrupted version
+- prohibits the model from learning trivial solution while learning robust features of data
+- corruption is done as a sample
+
+## Denoising autoencoders as generative models
+?
+
+## Gated autoencoders (GAE) (Relational autoencoder)
+- Learns relations on input-output pairs
+- Noise applied to both x,y during training
+- Learning relations can eg. be learning translations between images
+- Training with MSE for real values, Cross-entropy for binary
+- Learn with SGD
+
+## Gated autoencoders as class-conditional generative models
+- Use class labels to learn separate manifolds for each label
+- Generative model same way DAE is
+- Akin to learning DAE for each label
+- Gating acts as modulating model weights based on class label
